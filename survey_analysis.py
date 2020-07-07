@@ -17,22 +17,22 @@ from nltk.stem.wordnet import WordNetLemmatizer
 answer_mapping = {
     'XAI01': {
         'A1': 'not at all',
-        'A2': 'I have heard of it,\n but I have never dealt with it',
-        'A3': 'I have read articles about it\n from time to time',
-        'A4': 'I regularly deal with the topic',
-        'A5': 'I am an expert'
+        'A2': 'I have heard\n of it, but I\n have never\n dealt with it',
+        'A3': 'I have read\n articles about\n it from time\n to time',
+        'A4': 'I regularly\n deal with\n the topic',
+        'A5': 'I\'m an expert'
     },
     'XAI02': {
         'A1': 'not at all',
-        'A2': 'I have heard of it,\n but I have never dealt with it',
-        'A3': 'I have read articles about it\n from time to time',
-        'A4': 'I follow the topic closely'
+        'A2': 'I have heard\n of it, but I\n have never\n dealt with it',
+        'A3': 'I have read\n articles about\n it from time\n to time',
+        'A4': 'I follow the\n topic closely'
     },
     'XAI03': {
-        'A1': 'Completely and without questioning it',
-        'A2': 'Basically yes, but I would like\n to understand the background better',
-        'A3': 'Most of the time,\n but I do not understand the background',
-        'A4': 'Rather rarely,\n only if it is understandable',
+        'A1': 'Completely and\n without questioning it',
+        'A2': 'Basically yes,\n but I would like\n to understand\n the background better',
+        'A3': 'Most of the\n time, but I do\n not understand\n the background',
+        'A4': 'Rather rarely,\n only if it is\n understandable',
         'A5': 'Actually never'
     },
     'XAI04': {
@@ -44,7 +44,7 @@ answer_mapping = {
     'AIpT01': {
         'A1': 'No',
         'A2': 'Yes',
-        'A3': 'Yes, and I have already dealt with this topic'
+        'A3': 'Yes, and I have already\n dealt with this topic'
     },
     'AIpT02': {
         'A1': 'No, never',
@@ -60,11 +60,11 @@ answer_mapping = {
         'A4': 'Very important'
     },
     'EnvSus02': {
-        'A1': '5x per Week or more',
+        'A1': '5x per Week\n or more',
         'A2': '2-4x per Week',
         'A3': '1x per Week',
-        'A4': 'Few times per month',
-        'A5': 'Few times per week',
+        'A4': 'Few times\n per month',
+        'A5': 'Few times\n per week',
         'A6': 'Never'
     },
     'EnvSus03': {
@@ -100,6 +100,8 @@ answer_mapping = {
         'A4': 'Very important',
     }
 }
+
+fsz=23
 
 lemmatizer = WordNetLemmatizer()
 
@@ -200,13 +202,10 @@ def main():
 
 
     for t in results_dict:
-        # if t not in ['id', 'datestamp', 'startdate', 'startlanguage', 'lastpage', 'seed', 'enddate', 'submitdate', 'AIpT03', 'EnvSus05', 'O04']:
         if t in ['XAI01', 'XAI02']:
             count = dict(Counter(results_dict[t]))
             print("Frage %s :" %t, dict(Counter(count)))
             plt.title(t)
-            plt.xlabel('Answer', fontsize=20)
-            plt.ylabel('Count', fontsize=20)
             keys = sorted(list(count.keys()))
             values = list()
             names = list()
@@ -218,8 +217,13 @@ def main():
                     names.append(k)
             plt.yscale('linear')
             plt.bar(range(len(count)), values, align='center')
-            plt.xticks(range(len(count)), names)
-            plt.show()
+            plt.xticks(range(len(count)), names, fontsize=fsz)
+            plt.yticks(fontsize=fsz)
+            plt.subplots_adjust(left=0.06, right=0.98, top=0.96, bottom=0.15)
+            mng = plt.get_current_fig_manager()
+            mng.window.state('zoomed')
+            plt.savefig("export\\%s.png" %t)
+            # plt.show()
 
     for t in clustered_results:
         if t not in ['id', 'datestamp', 'startdate', 'startlanguage', 'lastpage', 'seed', 'enddate', 'submitdate', 'XAI01', 'XAI02', 'AIpT03', 'EnvSus05', 'O04']:
@@ -246,10 +250,16 @@ def main():
             
             data = pd.DataFrame({"Cluster 0": value_list[0], "Cluster 1": value_list[1], "Cluster 2": value_list[2], "Cluster 3": value_list[3]}, index=names)
             ax = data.plot.bar(rot=0)
+            plt.title(t)
+            plt.xticks(fontsize=fsz)
+            plt.yticks(fontsize=fsz)
+            plt.subplots_adjust(left=0.06, right=0.98, top=0.96, bottom=0.15)
+            mng = plt.get_current_fig_manager()
+            mng.window.state('zoomed')
+            plt.savefig("export\\%s.png" %t)
+            # plt.show()
 
-            plt.show()
-
-    wc_results = {'XAI04' : list(), 'EnvSus05': list(), 'O04': list()}
+    wc_results = {'AIpT03' : list(), 'EnvSus05': list(), 'O04': list()}
 
     for res in survey_results:
 
@@ -259,7 +269,7 @@ def main():
             res[17]
             res[21]
             if str(res[13]) != 'nan':
-                wc_results['XAI04'].extend(remove_noise(word_tokenize(res[13])))
+                wc_results['AIpT03'].extend(remove_noise(word_tokenize(res[13])))
             if str(res[18]) != 'nan':
                 wc_results['EnvSus05'].extend(remove_noise(word_tokenize(res[18])))
             if str(res[22]) != 'nan':
@@ -269,19 +279,27 @@ def main():
                 work_lens.append((res[6] - res[5]).total_seconds())
 
 
-    wc_results['XAI04'] = Counter(wc_results['XAI04'])
+    wc_results['AIpT03'] = Counter(wc_results['AIpT03'])
     wordcloud = WordCloud()
-    wordcloud.generate_from_frequencies(frequencies=wc_results['XAI04'])
+    wordcloud.generate_from_frequencies(frequencies=wc_results['AIpT03'])
     plt.figure()
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
-    wc_results['EnvSus05'] = Counter(wc_results['EnvSus05'])
+    mng = plt.get_current_fig_manager()
+    mng.window.state('zoomed')
+    plt.subplots_adjust(left=0.04, right=0.96, top=0.96, bottom=0.04)
+    plt.savefig("export\\AIpT03.png")
 
+    wc_results['EnvSus05'] = Counter(wc_results['EnvSus05'])
     wordcloud = WordCloud()
     wordcloud.generate_from_frequencies(frequencies=wc_results['EnvSus05'])
     plt.figure()
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
+    mng = plt.get_current_fig_manager()
+    mng.window.state('zoomed')
+    plt.subplots_adjust(left=0.04, right=0.96, top=0.96, bottom=0.04)
+    plt.savefig("export\\EnvSus05.png")
 
     wc_results['O04'] = Counter(wc_results['O04'])
     wordcloud = WordCloud()
@@ -289,8 +307,11 @@ def main():
     plt.figure()
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
-
-    plt.show()
+    mng = plt.get_current_fig_manager()
+    mng.window.state('zoomed')
+    plt.subplots_adjust(left=0.04, right=0.96, top=0.96, bottom=0.04)
+    plt.savefig("export\\O04.png")
+    # plt.show()
 
 
     avg_work_len = int((sum(work_lens) / len(results_dict['id'])))
